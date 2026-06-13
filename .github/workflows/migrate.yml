@@ -1,17 +1,15 @@
 name: DB Migrate
 on:
-  workflow_dispatch:  # déclenchement manuel
+  workflow_dispatch:
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm install
-      - run: npm run db:deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_PROVIDER: postgresql
+      - name: Run Prisma migrations via Evolution API image
+        run: |
+          docker run --rm \
+            -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            -e DATABASE_PROVIDER=postgresql \
+            evoapicloud/evolution-api:latest \
+            /bin/bash -c "npm run db:deploy"
